@@ -7,6 +7,7 @@ import { getHostname } from '../../scripts/utils.js';
  */
 export default async function decorate(block) {
   console.log(block);
+  debugger
 
   let inputs = block.querySelectorAll('.dynamicmedia-template > div');
   
