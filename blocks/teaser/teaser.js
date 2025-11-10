@@ -114,17 +114,17 @@ export default function decorate(block) {
 
   const properties = readBlockConfig(block);
 
-  let swooshbgClass = 'swoosh-bg';
-  let swooshlayersClass = 'swoosh-layers';
+  var swooshbgClass = 'swoosh-bg';
+  var swooshlayersClass = 'swoosh-layers';
 
-  if (properties.useswoosh && properties.useswoosh == 'false') {
+  if(properties.useswoosh && properties.useswoosh == "false"){
     swooshbgClass = 'swoosh-bg-hidden';
     swooshlayersClass = 'swoosh-layers-hidden';
   }
 
   // Get CTA style and set button container class
-  let buttonContainerClass = 'button-container';
-  if (properties.ctastyle) {
+  var buttonContainerClass = 'button-container';
+  if(properties.ctastyle){
     buttonContainerClass = `cta-${properties.ctastyle}`;
   }
 
@@ -132,7 +132,7 @@ export default function decorate(block) {
   const swooshSecond = `${window.hlx.codeBasePath}/icons/teaser_outerswoosh.svg`;
   const isVideo = (properties.teaserstyle && properties.teaserstyle === 'video');
   const videoAutoplay = (properties.videobehavior && properties.videobehavior === 'autoplay');
-  const buttonText = (properties.buttontext) ? properties.buttontext : 'Button';
+  const buttonText = (properties['buttontext']) ? properties['buttontext'] : 'Button';
   const buttonStyle = (properties['btn-style']) ? properties['btn-style'] : 'dark-bg';
   const buttonLink = (properties['btn-link']) ? properties['btn-link'] : '';
   const videoReference = isVideo ? properties.videoreference : sampleVideo;
