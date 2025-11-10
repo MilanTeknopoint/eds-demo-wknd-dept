@@ -5830,6 +5830,81 @@
     ]
   },
   {
+    "id": "report",
+    "fields": [
+      {
+        "component": "container",
+        "name": "reports",
+        "label": "Reports",
+        "collapsible": false,
+        "multi": true,
+        "fields": [
+          {
+            "component": "text",
+            "name": "title",
+            "label": "Report Title",
+            "required": true,
+            "placeholder": "e.g., Report, 15 Oct"
+          },
+          {
+            "component": "text",
+            "name": "date",
+            "label": "Date",
+            "required": true,
+            "placeholder": "e.g., 15 Oct"
+          },
+          {
+            "component": "text",
+            "name": "sharedWith",
+            "label": "Shared With",
+            "required": true,
+            "placeholder": "e.g., CFO, Investors, Team"
+          },
+          {
+            "component": "select",
+            "name": "status",
+            "label": "Status",
+            "required": true,
+            "options": [
+              {
+                "name": "In Progress",
+                "value": "in progress"
+              },
+              {
+                "name": "Complete",
+                "value": "complete"
+              },
+              {
+                "name": "Realistic",
+                "value": "realistic"
+              },
+              {
+                "name": "Pending",
+                "value": "pending"
+              },
+              {
+                "name": "Review",
+                "value": "review"
+              }
+            ]
+          },
+          {
+            "component": "text",
+            "name": "dueDate",
+            "label": "Due Date",
+            "placeholder": "e.g., Due in 3 days (optional)"
+          },
+          {
+            "component": "text",
+            "name": "reportUrl",
+            "label": "Report URL",
+            "placeholder": "Link to the full report"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "search",
     "fields": [
       {
