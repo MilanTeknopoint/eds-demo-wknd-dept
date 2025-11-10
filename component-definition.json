@@ -798,6 +798,8 @@
         {
           "title": "Report",
           "id": "report",
+          "title": "MyCards",
+          "id": "myCards",
           "plugins": {
             "xwalk": {
               "page": {
@@ -805,6 +807,23 @@
                 "template": {
                   "name": "Report",
                   "model": "report"
+                  "name": "MyCards",
+                  "filter": "myCards"
+                }
+              }
+            }
+          }
+        },
+        {
+          "title": "MyCard",
+          "id": "myCard",
+          "plugins": {
+            "xwalk": {
+              "page": {
+                "resourceType": "core/franklin/components/block/v1/block/item",
+                "template": {
+                  "name": "MyCard",
+                  "model": "myCard"
                 }
               }
             }
