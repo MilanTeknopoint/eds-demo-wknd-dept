@@ -15,7 +15,7 @@ import {
   getMetadata,
   loadScript,
   toClassName,
-  toCamelCase,
+  toCamelCase
 } from './aem.js';
 import { picture, source, img } from './dom-helpers.js';
 
@@ -25,8 +25,9 @@ import {
   setPageLanguage,
   PATH_PREFIX,
   createSource,
-  getHostname,
+  getHostname
 } from './utils.js';
+
 
 /**
  * Moves all the attributes from a given elmenet to another given element.
@@ -48,16 +49,16 @@ export function moveAttributes(from, to, attributes) {
 }
 
 export function isAuthorEnvironment() {
-  if (window?.location?.origin?.includes('author')) {
+  if(window?.location?.origin?.includes('author')){
     return true;
+  }else{
+    return false;
   }
-  return false;
-
   /*
   if(document.querySelector('*[data-aue-resource]') !== null){
     return true;
-  } */
-  // return false;
+  }*/
+  //return false;
 }
 
 /**
@@ -190,8 +191,10 @@ export function decorateMain(main) {
   decorateDMImages(main);
 }
 
+
 async function renderWBDataLayer() {
-  // const config = await fetchPlaceholders();
+  
+  //const config = await fetchPlaceholders();
   const lastPubDateStr = getMetadata('published-time');
   const firstPubDateStr = getMetadata('content_date') || lastPubDateStr;
   const hostnameFromPlaceholders = await getHostname();
@@ -203,7 +206,7 @@ async function renderWBDataLayer() {
       contentType: getMetadata('content_type'),
       pageUid: getMetadata('pageuid'),
       pageName: getMetadata('pagename'),
-      hostName: hostnameFromPlaceholders || getMetadata('hostname'),
+      hostName: hostnameFromPlaceholders ? hostnameFromPlaceholders : getMetadata('hostname'),
       pageFirstPub: formatDate(firstPubDateStr),
       pageLastMod: formatDate(lastPubDateStr),
       webpackage: '',
@@ -287,17 +290,18 @@ async function loadEager(doc) {
 async function loadLazy(doc) {
   const main = doc.querySelector('main');
   await loadSections(main);
-  // decorateSectionImages(doc);
+  //decorateSectionImages(doc);
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
   if (hash && element) element.scrollIntoView();
-  // decorateSectionImages(doc);
+  //decorateSectionImages(doc);
   loadHeader(doc.querySelector('header'));
   loadFooter(doc.querySelector('footer'));
 
   loadCSS(`${window.hlx.codeBasePath}/styles/lazy-styles.css`);
   loadFonts();
 }
+
 
 /**
  * Decorates Dynamic Media images by modifying their URLs to include specific parameters
@@ -309,62 +313,63 @@ export function decorateDMImages(main) {
   main.querySelectorAll('a[href^="https://delivery-p"]').forEach((a) => {
     const url = new URL(a.href.split('?')[0]);
     if (url.hostname.endsWith('.adobeaemcloud.com')) {
-      const blockBeingDecorated = whatBlockIsThis(a);
-      let blockName = '';
-      let rotate = '';
-      let flip = '';
-      let crop = '';
-      if (blockBeingDecorated) {
-        blockName = Array.from(blockBeingDecorated.classList).find((className) => className !== 'block');
-      }
-      if (blockName && blockName === 'dynamicmedia-image') {
-        rotate = blockBeingDecorated?.children[3]?.textContent?.trim();
-        flip = blockBeingDecorated?.children[4]?.textContent?.trim();
-        crop = blockBeingDecorated?.children[5]?.textContent?.trim();
-      }
 
-      const uuidPattern = /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i;
-      const match = url.href?.match(uuidPattern);
-      let aliasname = '';
-      if (!match) {
-        throw new Error('No asset UUID found in URL');
-      } else {
-        aliasname = match[1];
-      }
-      const hrefWOExtn = url.href?.substring(0, url.href?.lastIndexOf('.'))?.replace(/\/original\/(?=as\/)/, '/');
-      const pictureEl = picture(
-        source({
-          srcset: `${hrefWOExtn}.webp?width=1400&quality=85&preferwebp=true${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          type: 'image/webp',
-          media: '(min-width: 992px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=1320&quality=85&preferwebp=true${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          type: 'image/webp',
-          media: '(min-width: 768px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=780&quality=85&preferwebp=true${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          type: 'image/webp',
-          media: '(min-width: 320px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=1400&quality=85${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          media: '(min-width: 992px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=1320&quality=85${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          media: '(min-width: 768px)',
-        }),
-        source({
-          srcset: `${hrefWOExtn}.webp?width=780&quality=85${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          media: '(min-width: 320px)',
-        }),
-        img({
-          src: `${hrefWOExtn}.webp?width=1400&quality=85${rotate ? `&rotate=${rotate}` : ''}${flip ? `&flip=${flip.toLowerCase()}` : ''}${crop ? `&crop=${crop.toLowerCase()}` : ''}`,
-          alt: a.innerText,
-        }),
-      );
+        const blockBeingDecorated = whatBlockIsThis(a);
+        let blockName = '';
+        let rotate = '';
+        let flip = '';
+        let crop = '';
+        if(blockBeingDecorated){
+            blockName = Array.from(blockBeingDecorated.classList).find(className => className !== 'block');
+        }
+        if(blockName && blockName === 'dynamicmedia-image'){
+          rotate = blockBeingDecorated?.children[3]?.textContent?.trim();
+          flip = blockBeingDecorated?.children[4]?.textContent?.trim();
+          crop = blockBeingDecorated?.children[5]?.textContent?.trim();
+        }
+
+        const uuidPattern = /([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i;
+        const match = url.href?.match(uuidPattern);
+        let aliasname = '';
+        if (!match) {
+            throw new Error('No asset UUID found in URL');
+        }else{
+          aliasname = match[1];
+        }
+        let hrefWOExtn =  url.href?.substring(0, url.href?.lastIndexOf('.'))?.replace(/\/original\/(?=as\/)/, '/');
+        const pictureEl = picture(
+          source({ 
+              srcset: `${hrefWOExtn}.webp?width=1400&quality=85&preferwebp=true${rotate ? '&rotate=' + rotate : ''}${flip ? '&flip=' + flip.toLowerCase() : ''}${crop ? '&crop=' + crop.toLowerCase() : ''}`, 
+              type: 'image/webp', 
+              media: '(min-width: 992px)' 
+          }),
+          source({ 
+              srcset: `${hrefWOExtn}.webp?width=1320&quality=85&preferwebp=true${rotate ? '&rotate=' + rotate : ''}${flip ? '&flip=' + flip.toLowerCase() : ''}${crop ? '&crop=' + crop.toLowerCase() : ''}`, 
+              type: 'image/webp', 
+              media: '(min-width: 768px)' 
+          }),
+          source({ 
+              srcset: `${hrefWOExtn}.webp?width=780&quality=85&preferwebp=true${rotate ? '&rotate=' + rotate : ''}${flip ? '&flip=' + flip.toLowerCase() : ''}${crop ? '&crop=' + crop.toLowerCase() : ''}`, 
+              type: 'image/webp', 
+              media: '(min-width: 320px)' 
+          }),
+          source({ 
+              srcset: `${hrefWOExtn}.webp?width=1400&quality=85${rotate ? '&rotate=' + rotate : ''}${flip ? '&flip=' + flip.toLowerCase() : ''}${crop ? '&crop=' + crop.toLowerCase() : ''}`, 
+              media: '(min-width: 992px)' 
+          }),
+          source({ 
+              srcset: `${hrefWOExtn}.webp?width=1320&quality=85${rotate ? '&rotate=' + rotate : ''}${flip ? '&flip=' + flip.toLowerCase() : ''}${crop ? '&crop=' + crop.toLowerCase() : ''}`, 
+              media: '(min-width: 768px)' 
+          }),
+          source({ 
+              srcset: `${hrefWOExtn}.webp?width=780&quality=85${rotate ? '&rotate=' + rotate : ''}${flip ? '&flip=' + flip.toLowerCase() : ''}${crop ? '&crop=' + crop.toLowerCase() : ''}`, 
+              media: '(min-width: 320px)' 
+          }),
+          img({ 
+              src: `${hrefWOExtn}.webp?width=1400&quality=85${rotate ? '&rotate=' + rotate : ''}${flip ? '&flip=' + flip.toLowerCase() : ''}${crop ? '&crop=' + crop.toLowerCase() : ''}`, 
+              alt: a.innerText 
+          }),
+        );
       a.replaceWith(pictureEl);
     }
   });
