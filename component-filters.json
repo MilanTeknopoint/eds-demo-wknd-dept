@@ -30,8 +30,7 @@
       "forex",
       "accordion",
       "embed-adaptive-form",
-      "find-a-doctor",
-      "myCards"
+      "find-a-doctor"
     ]
   },
   {
@@ -63,7 +62,7 @@
     "components": [
       "button",
       "image",
-      "text",      
+      "text",
       "title",
       "video"
     ]
