@@ -1,13 +1,14 @@
 import { getMetadata, fetchPlaceholders } from '../../scripts/aem.js';
 import { loadFragment } from '../fragment/fragment.js';
-import { getHostname } from '../../scripts/utils.js';
+import {
+  getHostname,
+  getLanguage, getSiteName, TAG_ROOT, PATH_PREFIX, SUPPORTED_LANGUAGES, computeLocalizedUrl, discoverLanguagesFromPlaceholders,
+} from '../../scripts/utils.js';
 
 import {
   getNavigationMenu, formatNavigationJsonData,
 } from './navigation.js';
-import {
-  getLanguage, getSiteName, TAG_ROOT, PATH_PREFIX, SUPPORTED_LANGUAGES, computeLocalizedUrl, discoverLanguagesFromPlaceholders,
-} from '../../scripts/utils.js';
+
 import {
   button,
   div,
@@ -75,12 +76,12 @@ function focusNavSection() {
  * @param {Boolean} expanded Whether the element should be expanded or collapsed
  */
 function toggleAllNavSections(sections, expanded = false) {
-    const navSections = sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li');
-    if (navSections && navSections.length > 0) {
-      navSections.forEach((section) => {
-        section.setAttribute('aria-expanded', expanded);
-      });
-    }
+  const navSections = sections.querySelectorAll('.nav-sections .default-content-wrapper > ul > li');
+  if (navSections && navSections.length > 0) {
+    navSections.forEach((section) => {
+      section.setAttribute('aria-expanded', expanded);
+    });
+  }
 }
 
 async function overlayLoad(navSections) {
@@ -106,14 +107,13 @@ async function overlayLoad(navSections) {
  * @param {*} forceExpanded Optional param to force nav expand behavior when not null
  */
 async function toggleMenu(nav, navSections, forceExpanded = null) {
-
   /*
   if (window.navigationData) {
     await overlayLoad(navSections);
   } else {
     return;
-  }*/
-  
+  } */
+
   const expanded = forceExpanded !== null ? !forceExpanded : nav.getAttribute('aria-expanded') === 'true';
   const button = nav.querySelector('.nav-hamburger button');
   document.body.style.overflowY = (expanded || isDesktop.matches) ? '' : 'hidden';
@@ -148,7 +148,6 @@ async function toggleMenu(nav, navSections, forceExpanded = null) {
   }
 }
 
-
 function settingAltTextForSearchIcon() {
   const searchImage = document.querySelector('.icon-search-light');
   if (!searchImage) {
@@ -166,16 +165,15 @@ function settingAltTextForSearchIcon() {
       e.currentTarget.nextElementSibling.focus();
     }
   });
-  //searchImage.setAttribute('title', listOfAllPlaceholdersData.searchAltText || 'Search');
+  // searchImage.setAttribute('title', listOfAllPlaceholdersData.searchAltText || 'Search');
 }
-
 
 function handleEnterKey(event) {
   if (event.key !== 'Enter') return;
   const inputValue = document.querySelector('.search-container input').value;
-  //const url = (listOfAllPlaceholdersData.searchRedirectUrl || 'https://wknd.site/en/search?q=') + inputValue;
-  
-  const url = `/content/${siteName}/search-results.html?q=`+ inputValue;
+  // const url = (listOfAllPlaceholdersData.searchRedirectUrl || 'https://wknd.site/en/search?q=') + inputValue;
+
+  const url = `/content/${siteName}/search-results.html?q=${inputValue}`;
 
   if (inputValue) window.location.href = url;
 }
@@ -233,8 +231,8 @@ function createSearchBox() {
     searchIcon.alt = 'search';
     searchIcon.addEventListener('click', () => {
       if (searchInputBox.value) {
-        ///window.location.href = (listOfAllPlaceholdersData.searchRedirectUrl || '<sitename>/en/search?q=') + searchInputBox.value;
-        window.location.href = `/content/${siteName}/search-results.html?q=` + searchInputBox.value;
+        /// window.location.href = (listOfAllPlaceholdersData.searchRedirectUrl || '<sitename>/en/search?q=') + searchInputBox.value;
+        window.location.href = `/content/${siteName}/search-results.html?q=${searchInputBox.value}`;
       }
     });
 
@@ -251,7 +249,7 @@ function createSearchBox() {
     const searchContainerWrapper = div({ class: 'search-input-wrapper' });
     searchContainerWrapper.append(searchInputContainer);
     searchContainer.appendChild(searchContainerWrapper);
-    
+
     navTools.appendChild(searchContainer);
   }
 }
@@ -269,12 +267,12 @@ function closeSearchBox() {
   const searchContainer = headerWrapper ? headerWrapper.querySelector('.search-container') : null;
   const cancelContainer = navWrapper ? navWrapper.querySelector('.cancel-container') : null;
   // const overlay = document.querySelector('.overlay');
-  //const searchImage = document.querySelector('.-light');
+  // const searchImage = document.querySelector('.-light');
   const searchImage = document.querySelector('.icon-search-light');
   // if(searchContainer){
   //   searchContainer.style.display = 'none';
   // }
-  if(cancelContainer){
+  if (cancelContainer) {
     cancelContainer.style.display = 'none';
   }
   if (searchImage) {
@@ -304,133 +302,123 @@ const closeSearchOnFocusOut = (e, navTools) => {
 
 let listOfAllPlaceholdersData = [];
 
-
-
 async function makeImageClickableNSettingAltText(placeholderData) {
-    try {
-        const logoImage = document.querySelector('.nav-brand img');
-        const anchor = document.createElement('a');
-        Object.assign(anchor, {
-            href: placeholderData?.logoUrl || 'https://main--universal-demo--adobehols.aem.live/',
-            title: logoImage?.alt,
-        });
-        const picture = document.querySelector('.nav-brand picture');
-        if (picture) anchor.appendChild(picture);
-        const targetElement = document.querySelector('.nav-brand .default-content-wrapper');
-        if (targetElement) {
-            targetElement.appendChild(anchor);
-        }
-    } catch (error) {
-        console.error('Error in makeImageClickableNSettingAltText:', error);
+  try {
+    const logoImage = document.querySelector('.nav-brand img');
+    const anchor = document.createElement('a');
+    Object.assign(anchor, {
+      href: placeholderData?.logoUrl || 'https://main--universal-demo--adobehols.aem.live/',
+      title: logoImage?.alt,
+    });
+    const picture = document.querySelector('.nav-brand picture');
+    if (picture) anchor.appendChild(picture);
+    const targetElement = document.querySelector('.nav-brand .default-content-wrapper');
+    if (targetElement) {
+      targetElement.appendChild(anchor);
     }
+  } catch (error) {
+    console.error('Error in makeImageClickableNSettingAltText:', error);
+  }
 }
 
 async function fetchingPlaceholdersData() {
-    try {
-        listOfAllPlaceholdersData = await fetchPlaceholders();
-        await makeImageClickableNSettingAltText(listOfAllPlaceholdersData);
-        return true; // Indicate successful completion
-    } catch (error) {
-        console.error('Error in fetchingPlaceholdersData:', error);
-        listOfAllPlaceholdersData = []; // Set default value on error
-        return false; // Indicate failure
-    }
+  try {
+    listOfAllPlaceholdersData = await fetchPlaceholders();
+    await makeImageClickableNSettingAltText(listOfAllPlaceholdersData);
+    return true; // Indicate successful completion
+  } catch (error) {
+    console.error('Error in fetchingPlaceholdersData:', error);
+    listOfAllPlaceholdersData = []; // Set default value on error
+    return false; // Indicate failure
+  }
 }
 
-
 async function addLogoLink(langCode) {
-
-  //urn:aemconnection:/content/wknd-universal/language-masters/en/magazine/jcr:content
+  // urn:aemconnection:/content/wknd-universal/language-masters/en/magazine/jcr:content
   const currentLang = langCode || getLanguage();
   const aueResource = document.body.getAttribute('data-aue-resource')
     ?.replace(new RegExp(`^.*?(\\/content.*?\\/${currentLang}).*$`), '$1');
-  
-  let logoLink = '';
-    if(aueResource !== null && aueResource !== undefined && aueResource !== ''){
-      logoLink = aueResource+'.html';
-    } else {
-      if(langCode === 'en') {
-        logoLink = window.location.origin;
-      } else {
-        logoLink = window.location.origin + `/${langCode}`;
-      }
-    }
 
-    try {
-      const logoImage = document.querySelector('.nav-brand img');
-      const anchor = document.createElement('a');
-      Object.assign(anchor, {
-          href: logoLink,
-          title: logoImage?.alt,
-      });
-      const picture = document.querySelector('.nav-brand picture');
-      if (picture) anchor.appendChild(picture);
-      const targetElement = document.querySelector('.nav-brand .default-content-wrapper');
-      if (targetElement) {
-          targetElement.appendChild(anchor);
-      }
-    } catch (error) {
-      console.error('Error in addLogoLink:', error);
+  let logoLink = '';
+  if (aueResource !== null && aueResource !== undefined && aueResource !== '') {
+    logoLink = `${aueResource}.html`;
+  } else if (langCode === 'en') {
+    logoLink = window.location.origin;
+  } else {
+    logoLink = `${window.location.origin}/${langCode}`;
+  }
+
+  try {
+    const logoImage = document.querySelector('.nav-brand img');
+    const anchor = document.createElement('a');
+    Object.assign(anchor, {
+      href: logoLink,
+      title: logoImage?.alt,
+    });
+    const picture = document.querySelector('.nav-brand picture');
+    if (picture) anchor.appendChild(picture);
+    const targetElement = document.querySelector('.nav-brand .default-content-wrapper');
+    if (targetElement) {
+      targetElement.appendChild(anchor);
     }
+  } catch (error) {
+    console.error('Error in addLogoLink:', error);
+  }
 }
 
-
 async function applyCFTheme(themeCFReference) {
-   if (!themeCFReference) return;
-  
+  if (!themeCFReference) return;
+
   // Configuration
   const CONFIG = {
     WRAPPER_SERVICE_URL: 'https://prod-60.eastus2.logic.azure.com:443/workflows/94ef4cd1fc1243e08aeab8ae74bc7980/triggers/manual/paths/invoke',
     WRAPPER_SERVICE_PARAMS: 'api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=e81iCCcESEf9NzzxLvbfMGPmredbADtTZSs8mspUTa4',
     GRAPHQL_QUERY: '/graphql/execute.json/ref-demo-eds/BrandThemeByPath',
-    EXCLUDED_THEME_KEYS: new Set(['brandSite', 'brandLogo'])
+    EXCLUDED_THEME_KEYS: new Set(['brandSite', 'brandLogo']),
   };
-  
+
   try {
     const decodedThemeCFReference = decodeURIComponent(themeCFReference);
     const hostnameFromPlaceholders = await getHostname();
-    const hostname = hostnameFromPlaceholders ? hostnameFromPlaceholders : getMetadata('hostname');
+    const hostname = hostnameFromPlaceholders || getMetadata('hostname');
     const aemauthorurl = getMetadata('authorurl') || '';
     const aempublishurl = hostname?.replace('author', 'publish')?.replace(/\/$/, '');
     const isAuthor = isAuthorEnvironment();
 
     // Prepare request configuration based on environment
-    const requestConfig = isAuthor 
+    const requestConfig = isAuthor
       ? {
-          url: `${aemauthorurl}${CONFIG.GRAPHQL_QUERY};path=${decodedThemeCFReference};ts=${Date.now()}`,
-          method: 'GET',
-          headers: { 'Content-Type': 'application/json' }
-        }
+        url: `${aemauthorurl}${CONFIG.GRAPHQL_QUERY};path=${decodedThemeCFReference};ts=${Date.now()}`,
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      }
       : {
-          url: `${CONFIG.WRAPPER_SERVICE_URL}?${CONFIG.WRAPPER_SERVICE_PARAMS}`,
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            graphQLPath: `${aempublishurl}${CONFIG.GRAPHQL_QUERY}`,
-            cfPath: decodedThemeCFReference,
-            variation: "master"
-          })
-        };
+        url: `${CONFIG.WRAPPER_SERVICE_URL}?${CONFIG.WRAPPER_SERVICE_PARAMS}`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          graphQLPath: `${aempublishurl}${CONFIG.GRAPHQL_QUERY}`,
+          cfPath: decodedThemeCFReference,
+          variation: 'master',
+        }),
+      };
 
     // Fetch theme data
     const response = await fetch(requestConfig.url, {
       method: requestConfig.method,
       headers: requestConfig.headers,
-      ...(requestConfig.body && { body: requestConfig.body })
+      ...(requestConfig.body && { body: requestConfig.body }),
     });
 
     if (!response.ok) {
-       console.error(`HTTP error! status: ${response.status}`);
+      console.error(`HTTP error! status: ${response.status}`);
     }
 
     let themeCFRes;
 
-    
     try {
+      const responseText = await response.text();
 
-
-       const responseText = await response.text();
-      
       if (!responseText || responseText.trim() === '') {
         console.warn('Empty response received from server');
         return;
@@ -448,9 +436,7 @@ async function applyCFTheme(themeCFReference) {
 
     // Apply theme colors to CSS variables
     const cssVariables = Object.entries(themeColors)
-      .filter(([key, value]) => 
-        value != null && !CONFIG.EXCLUDED_THEME_KEYS.has(key)
-      )
+      .filter(([key, value]) => value != null && !CONFIG.EXCLUDED_THEME_KEYS.has(key))
       .map(([key, value]) => `  --brand-${key.replace(/([A-Z])/g, '-$1').toLowerCase()}: ${value};`)
       .join('\n');
 
@@ -459,12 +445,10 @@ async function applyCFTheme(themeCFReference) {
       styleElement.textContent = `:root {\n${cssVariables}\n}`;
       document.head.appendChild(styleElement);
     }
-
   } catch (error) {
     console.error('Error applying theme:', error);
   }
 }
-
 
 /**
  * loads and decorates the header, mainly the nav
@@ -472,35 +456,31 @@ async function applyCFTheme(themeCFReference) {
  */
 export default async function decorate(block) {
   // load nav as fragment
-  //const locale = getMetadata('nav');
+  // const locale = getMetadata('nav');
 
   const themeCFReference = getMetadata('theme_cf_reference');
   applyCFTheme(themeCFReference);
-  
 
-  
   const navMeta = getMetadata('nav');
   const langCode = getLanguage();
-  console.log("langCode :"+langCode);
+  console.log(`langCode :${langCode}`);
 
-   const isAuthor = isAuthorEnvironment();
-    let navPath =`/${langCode}/nav`;
-  
-    if(isAuthor){
-      navPath = navMeta ? new URL(navMeta, window.location).pathname : `/content/${siteName}${PATH_PREFIX}/${langCode}/nav`;
-    }
-   
+  const isAuthor = isAuthorEnvironment();
+  let navPath = `/${langCode}/nav`;
 
-  
-  //const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
+  if (isAuthor) {
+    navPath = navMeta ? new URL(navMeta, window.location).pathname : `/content/${siteName}${PATH_PREFIX}/${langCode}/nav`;
+  }
+
+  // const navPath = navMeta ? new URL(navMeta, window.location).pathname : '/nav';
 
   const pathSegments = window.location.pathname.split('/').filter(Boolean);
-  //console.log("pathSegments header: ", pathSegments);
+  // console.log("pathSegments header: ", pathSegments);
   const parentPath = pathSegments.length > 2 ? `/${pathSegments.slice(0, 3).join('/')}` : '/';
-  //console.log("parentPath header: ", parentPath);
-  //const navPath = locale ? `/${locale}/nav` : parentPath+'/nav';
-  //const navPath = parentPath=='/' ? locale ? `/${locale}/nav` : '/nav' : locale ? `/${locale}/nav` : parentPath+'/nav';
-  //console.log("navPath header: ", navPath);
+  // console.log("parentPath header: ", parentPath);
+  // const navPath = locale ? `/${locale}/nav` : parentPath+'/nav';
+  // const navPath = parentPath=='/' ? locale ? `/${locale}/nav` : '/nav' : locale ? `/${locale}/nav` : parentPath+'/nav';
+  // console.log("navPath header: ", navPath);
   const fragment = await loadFragment(navPath);
 
   // decorate nav DOM
@@ -632,7 +612,7 @@ export default async function decorate(block) {
       }
     });
   }
-  
+
   // hamburger for mobile
   const hamburger = document.createElement('div');
   hamburger.classList.add('nav-hamburger');
@@ -651,18 +631,18 @@ export default async function decorate(block) {
   navWrapper.append(nav);
   block.append(navWrapper);
   settingAltTextForSearchIcon();
-  //fetchingPlaceholdersData();
+  // fetchingPlaceholdersData();
   addLogoLink(langCode);
-    // Ensure search icon mask uses correct base path in UE/author/local
-    try {
-      const iconEl = document.querySelector('header .search.search-icon .icon');
-      if (iconEl && window.hlx && window.hlx.codeBasePath) {
-        const iconUrl = `${window.hlx.codeBasePath}/icons/search.svg`;
-        iconEl.style.webkitMask = `url(${iconUrl}) no-repeat center / contain`;
-        iconEl.style.mask = `url(${iconUrl}) no-repeat center / contain`;
-      }
-    } catch (e) {
-      // eslint-disable-next-line no-console
-      console.debug('search icon mask init skipped', e);
+  // Ensure search icon mask uses correct base path in UE/author/local
+  try {
+    const iconEl = document.querySelector('header .search.search-icon .icon');
+    if (iconEl && window.hlx && window.hlx.codeBasePath) {
+      const iconUrl = `${window.hlx.codeBasePath}/icons/search.svg`;
+      iconEl.style.webkitMask = `url(${iconUrl}) no-repeat center / contain`;
+      iconEl.style.mask = `url(${iconUrl}) no-repeat center / contain`;
     }
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.debug('search icon mask init skipped', e);
+  }
 }

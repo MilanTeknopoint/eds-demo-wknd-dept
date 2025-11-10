@@ -130,6 +130,7 @@ html[lang="ru"] .teaser-wrapper .button-container > a {
 .teaser-wrapper .teaser-swoosh-wrapper button {
     color: var(--text-light);
 }
+
 .teaser-wrapper .teaser-swoosh-wrapper a::after,
 .teaser-wrapper .teaser-swoosh-wrapper a.button::after,
 .teaser-wrapper .teaser-swoosh-wrapper button::after {
@@ -138,10 +139,10 @@ html[lang="ru"] .teaser-wrapper .button-container > a {
 
 /* Button hover styles for teaser with dark background */
 .teaser-wrapper .teaser-swoosh-wrapper .cta-button a.button:hover {
-    background-color: rgba(255, 255, 255, 0.1) !important;
+    background-color: rgb(255 255 255 / 10%) !important;
     color: var(--text-light) !important;
     border-color: var(--text-light) !important;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 4px 8px rgb(0 0 0 / 30%) !important;
 }
 
 .teaser-wrapper .teaser-swoosh-wrapper .cta-button a.button:hover::after {
@@ -199,10 +200,11 @@ html[lang="ru"] .teaser-wrapper .button-container > a {
     display: none;
 }
 
-/*button style*/
+/* button style */
 .teaser-wrapper .teaser-swoosh-wrapper .cta-button-dark a.button{
     color: var(--dark-color);
 }
+
 .teaser-wrapper .teaser-swoosh-wrapper .cta-button-dark a.button::after {
     content: "\f105";
     font-family: 'Font Awesome 5 Solid';
