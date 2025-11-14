@@ -326,8 +326,15 @@
     ]
   },
   {
-    "id": "carousel",
+    "id": "carousel-item",
     "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "card",
+        "label": "Name",
+        "value": ""
+      },
       {
         "component": "reference",
         "valueType": "string",
