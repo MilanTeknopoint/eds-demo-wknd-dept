@@ -338,7 +338,7 @@
       {
         "component": "reference",
         "valueType": "string",
-        "name": "card",
+        "name": "image",
         "value": ""
       }
     ]
